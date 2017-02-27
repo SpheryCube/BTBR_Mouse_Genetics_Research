@@ -4,7 +4,7 @@
 # decreased Atg genes -> increased insulin -> higher blood glucose
 
 rm(list=ls())
-directory <- "/home/daniel14/CompBioProjects/BTBRxB6/data"
+directory <- "/home/daniel14/Il6_Mouse_Research/data/"
 setwd(directory)
 getwd()
 
@@ -206,7 +206,7 @@ find.marker(cross = f2g, chr = 5, pos = 16.3)
 find.marker(cross = f2g, chr = 5, pos = 65.3)
 #Mine: rs13478154 (27114401 bp) and rs13478458 (110340025 bp)
 
-chr5_genes <- scan(file = "/home/daniel14/CompBioProjects/BTBRxB6/data/ch5_genes(large).txt",  what = "character",   skip = 1)
+chr5_genes <- scan(file = "/home/daniel14/Il6_Mouse_Research/data/ch5_genes(large).txt",  what = "character",   skip = 1)
 
 
 
@@ -215,7 +215,7 @@ find.marker(cross = f2g, chr = 5, pos = 42.7)
 find.marker(cross = f2g, chr = 5, pos = 65.3)
 #Mine: rs13478311 (67637841 bp) and rs13478458 (110340025 bp)
 
-chr5_genes_small <- scan(file = "/home/daniel14/CompBioProjects/BTBRxB6/data/ch5_genes(small).txt",  what = "character",   skip = 1)
+chr5_genes_small <- scan(file = "/home/daniel14/Il6_Mouse_Research/data/ch5_genes(small).txt",  what = "character",   skip = 1)
 
 
 # To download gene symbols, click on BioMart, choose database
@@ -269,7 +269,7 @@ add.threshold(scan1,perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 # in as covariate, running the scan for insulin, IL.6 and Il6_adipose
 
 # Add chr5 gene expression traits into cross object.
-f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes,annot$gene1, nomatch = 0)])
+f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_small,annot$gene1, nomatch = 0)])
 names(f2g$pheno)
 
 
@@ -278,18 +278,18 @@ names(f2g$pheno)
 
 # Column names for gene expression traits are the microarray probe IDs.
 # Replace probe IDs with gene symbols.
-names(f2g$pheno)[15:ncol(f2g$pheno)] <- annot$gene1[match(names(f2g$pheno)[15:ncol(f2g$pheno)],annot$a_gene_id)]
+names(f2g$pheno)[12:ncol(f2g$pheno)] <- annot$gene1[match(names(f2g$pheno)[12:ncol(f2g$pheno)],annot$a_gene_id)]
 names(f2g$pheno)
 
 # scan insulin, Il.6, and Il6_adipose conditional on chr2 gene expression traits.
 # Scan only for chromosome 5.
 
-scan_cond <- scanone(f2g,  pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno$Sgcb, method="hk")
+scan_cond <- scanone(f2g,  pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno$Olfr1010, method="hk")
 
 # note how we used "cbind" to concatenate the results. This is where we add in all the genes in our confidence interval as covariates.
 #  "cbind" calls the specialized function "cbind.scanone"
 #Do rest of conditional scans. The scan above was just to get it started.
-for(i in 16:ncol(f2g$pheno)){
+for(i in 13:ncol(f2g$pheno)){
   scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno[,i], method="hk") )
 }
 summary(scan_cond)
@@ -299,9 +299,11 @@ summary(scan_cond)
 # that order.
 head(names(scan_cond))
 dim(scan_cond)
-for (i in 15:(ncol(f2g$pheno))) {
-  names(scan_cond)[(3*(i-14)):(3*(i-14)+2)] <- names(f2g$pheno)[i]
+for (i in 12:(ncol(f2g$pheno))) {
+  names(scan_cond)[(3*(i-11)):(3*(i-11)+2)] <- names(f2g$pheno)[i]
 }
+
+head(names(scan_cond))
 
 par(mfrow=c(6,1), mar=c(3,4,1,4) + 0.1)
 for( i in 1:ncol(scan_cond)){
@@ -316,51 +318,114 @@ for( i in 1:ncol(scan_cond)){
 # for the first two columns in the scan object, which are 
 # chromosome number and cM position.
 
-# Which genes drop the chromosome 2 peak below the 10%
-# significance threshold of 3.67?
-for (i in 3:length(summary(subset(scan_cond, chr = 2)))) {
-  if (summary(subset(scan_cond, chr = 2))[[i]]< 3.67)
-    print(summary(subset(scan_cond, chr = 2))[i])
+# Which genes drop the chromosome 5 peak below the
+# significance threshold of 3.00?
+candidate_genes <- vector()
+for (i in 3:length(summary(subset(scan_cond, chr = 5)))) {
+  if (summary(subset(scan_cond, chr = 5))[[i]]< 3)
+  {
+    print(summary(subset(scan_cond, chr = 5))[i])
+    candidate_genes <- c(candidate_genes, names(scan_cond[i]))
   }
+}
 
-# Look for gene symbols repeated 3 times, indicating that the gene
-# influences insulin, Atg5, and Atg7 expression. Note: this is not
+print(candidate_genes)
+
+##We used a LOD score
+
+# Look for gene symbols repeated 3 times (ones whose LOD scores are all below 3), indicating that the gene
+# influences insulin, Il6, and Il6 adipose expression. Note: this is not
 # a fail-safe method. Check the plots to verify. Look for flattened
 # peaks on chromosome 2 for all three scans - insulin, Atg5, Atg7.
-summary(subset(scan_cond, chr = 2))[,which(names(scan_cond) %in% c("Pdrg1", "Gatm", "Nphp1", "Cds2","Ino80", "Dtd1", "Aqr", "Vps39", "Adal", "Cbfa2t2"))]
 
-# Plot each and compare to original scans for insulin, Atg5, and Atg7.
-plot(scan1, lodcolumn = 2)
+
+s <- summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% candidate_genes)]
+s
+
+#This code looks at which genes bring the lod score below the lod_threshold for insulin, Il6, and Il6 adipose expression.
+x = 0
+lod_threshold = 3.67
+while (3*x < length(s))
+{
+  scores = vector()
+  for (lod_score in s[(1+3*x):(3+3*x)])
+  {
+    scores <- c(scores, lod_score)
+  }
+  if (length(scores[scores<lod_threshold]) == 3)
+  {
+    print(candidate_genes[x+1])
+    #print("Location: " + 1+3*x + " through " + 3+3*x)
+  }
+  x = x + 1
+}
+
+summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Chst1"))]
+
+
+# Plot each and compare to original scans for insulin, il6, and il6 expression.
+par(mfrow=c(2,3))
+
+plot(scan1, lodcolumn = 7)  #ins.10wk
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+
+plot(scan1, lodcolumn = 3)  #il6
 add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
 add.threshold(scan1, perms=perm1, alpha=0.10, lty="dashed", lwd=2, col="purple")
 
-plot(scan1, lodcolumn = 10)
+plot(scan1, lodcolumn = 4)  #il6_adipose
 add.threshold(scan1, perms=perm1, alpha=0.05, lty="dashed", lwd=2, col="orange")
 add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 
-plot(scan1, lodcolumn = 11)
+# Chst1 conditional scans
+plot(scan_cond, lodcolumn = 100) #insulin
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+plot(scan_cond, lodcolumn = 101) #il6
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+plot(scan_cond, lodcolumn = 102) #il6 adipose
 add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
 add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 
-# Pdrg1 conditional scans
-plot(scan_cond, lodcolumn = 25) # for insulin
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-plot(scan_cond, lodcolumn = 26) # for Atg5
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-plot(scan_cond, lodcolumn = 27) # for Atg7
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+#######################################################################################
 
 
-# Plot all other conditional genome scans for Gatm, Nphp1, Cds2, Ino80, 
-# Dtd1, Aqr, Vps39, Adal, Cbfa2t2.
+Chst1_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Chst1")]]
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Chst1_adipose)
+
+# look at all pairwise scatterplots of clinical and expression traits
+names(f2g$pheno)
+
+X11()
+pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
+
+
+#########################################################################################
+
+# Plot all other conditional genome scans.
 # Use the index numbers produced by which(), less
 # 2 to account for the first two columns: chr and pos.
-which(names(scan_cond)  %in% c("Pdrg1", "Gatm", "Nphp1", "Cds2", "Ino80",  "Dtd1", "Aqr", "Vps39", "Adal", "Cbfa2t2"))-2
+which(names(scan_cond)  %in% c("Chst1", ))-2
+
+
+
+
+
+
+
+
+
+
+
+grep("Chst1", annot$gene1, value = TRUE)
+Chst1_adipose <- adipose.rz[, annot[grep("Chst1$", annot$gene1), 1]]
+summary(lm(Chst1_adipose ~ Il6_adipose))
+cor(Chst1_adipose, Il6_adipose)
+grep("Il6", f2g$pheno)
+phenotypes.rz["IL.6"]
+summary(lm(Chst1_adipose ~ f2g$pheno["IL.6"]))
 
 
 

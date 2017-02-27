@@ -166,7 +166,7 @@ find.marker(cross = f2g, chr = 2, pos = 83.6)
 # to something descriptive, like chr2_genes.txt.   
 # Read the chromosome 2 gene list into R.
 
-chr2_genes <- scan(file = "./data/chr2_genes.txt",  what = "character",   skip = 1)
+chr2_genes <- scan(file = "./data/chr2_genes.txt",  what = "character",   skip = 1) ##Skips the first line. Don't want to read MGI symbol like as gene symbol.
 
 ##########################################################
 ### I. conditional genome scans
