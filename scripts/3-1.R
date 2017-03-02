@@ -315,23 +315,24 @@ summary(scan_Il6_adipose)
 f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_small,annot$gene1, nomatch = 0)])
 names(f2g$pheno)
 
-
 # Column names for gene expression traits are the microarray probe IDs.
 # Replace probe IDs with gene symbols.
-names(f2g$pheno)[12:ncol(f2g$pheno)] <- annot$gene1[match(names(f2g$pheno)[12:ncol(f2g$pheno)],annot$a_gene_id)]
+names(f2g$pheno)[13:ncol(f2g$pheno)] <- annot$gene1[match(names(f2g$pheno)[13:ncol(f2g$pheno)],annot$a_gene_id)]
 names(f2g$pheno)
 
 # scan insulin, Il.6, and Il6_adipose conditional on chr5 gene expression traits.
 # Scan only for chromosome 5.
 
-#scan_cond <- scanone(f2g,  pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno$Olfr1010, method="hk")
+scan_cond <- scanone(f2g,  pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno$Mfsd7a, method="hk")
 
 # note how we used "cbind" to concatenate the results. This is where we add in all the genes in our confidence interval as covariates.
 # "cbind" calls the specialized function "cbind.scanone"
 # Do rest of conditional scans. The scan above was just to get it started and to show how to do the first one manually.
 # This part takes awhile.
-for(i in 12:ncol(f2g$pheno)){
-  scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno[,i], method="hk") )
+
+
+for(i in 14:ncol(f2g$pheno)){
+  scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno[,i], method="hk"))
 }
 summary(scan_cond)
 
@@ -341,7 +342,7 @@ summary(scan_cond)
 
 head(names(scan_cond))
 dim(scan_cond)
-for (i in 12:(ncol(f2g$pheno))) {
+for (i in 13:(ncol(f2g$pheno))) {
   names(scan_cond)[(3*(i-11)):(3*(i-11)+2)] <- names(f2g$pheno)[i]
 }
 head(names(scan_cond))
@@ -363,20 +364,34 @@ summary(names(scan_cond))
 # for the first two columns in the scan object, which are 
 # chromosome number and cM position.
 
-my_scan_func <- function(X){
-  par(mfrow=c(3,1))
+my_scan_func <- function(x){
+  par(mfrow=c(2, 3))
+  
+  
+  plot(scan1, chr =5, lodcolumn = 7, main = "QTL for Clinical Insulin Plasma Levels at 10 Weeks", ylab = "Insulin Levels", ylim = c(0, 7))
+  add.threshold(scan1, perms=perm1, alpha=0.05, lty="dashed", lwd=2, col="orange")
+  add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+  
+  plot(scan1, chr =5,  lodcolumn = 4, main = "Quantitative Trait Loci for Il6 Expression in Adipose Tissue", ylab = "Il6 Adipose Expression", ylim = c(0, 7))
+  add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+  add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+  
+  plot(scan1, chr =5, lodcolumn = 3, main = "Quantitative Trait Loci for Clinical IL-6 Plasma Levels", ylab = "IL-6 Levels", ylim= c(0, 7))
+  add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+  add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+  
   #Find lod column number of Chst1 insulin, Chst1, il6, and Chst1 il6 adipose exp in scan_cond
   
-  plot(scan_cond, lodcolumn = 3*x, main = paste("Insulin Scan with",  names(scan_cond[3*x]) , " Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
+  plot(scan_cond, chr = 5, lodcolumn = 3*x, main = paste("Insulin Scan with",  names(scan_cond[3*x]) , " Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
   
-  plot(scan_cond, lodcolumn = 3*x+1, main = paste("Il6 Adipose Exp Scan with",  names(scan_cond[3*x+1]) , "Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
+  plot(scan_cond, chr = 5, lodcolumn = 3*x+1, main = paste("Il6 Adipose Exp Scan with",  names(scan_cond[3*x+1]) , "Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
   
   
-  plot(scan_cond, lodcolumn = 3*x + 2, main = paste("IL-6 Scan with",  names(scan_cond[3*x+2]) , "Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
+  plot(scan_cond, chr = 5, lodcolumn = 3*x + 2, main = paste("IL-6 Scan with",  names(scan_cond[3*x+2]) , "Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 }
@@ -385,29 +400,33 @@ my_scan_func <- function(X){
 
 # Which genes drop the chromosome 5 peak below the
 # significance threshold of 3.67 only for insulin,, Il6 Adipose Expression, and Clinical IL-6 levels?
-summary(subset(scan_cond, chr = 5))
+summary(subset(scan_cond, chr = 5),  thresholds = c(9.1, 7.1, 6.3, 6.3,3.3))
 
 x = 2
 lod_threshold = 3.67
+candidate_genes <- vector()
 while (2+3*x < length(summary(subset(scan_cond, chr = 5))))
 {
   scores = vector()
-  for (lod_score in summary(subset(scan_cond, chr = 5))[(3*x):(2+3*x)]) #We want to skip the first five So that's why x starts at 2.
+  for (lod_score in summary(subset(scan_cond, chr = 5, threshold = c(9.1, 7.1, 6.3, 6.3, 3.3)))[(3*x):(2+3*x)]) #We want to skip the first five So that's why x starts at 2.
   {
     scores <- c(scores, lod_score)
     print(scores)
   }
-  if (length(scores[scores<lod_threshold]) == 3)
+  if (length(scores[scores < lod_threshold]) == 3)
   {
     print(names(scan_cond[3*x]))
     cat("Lod column numbers in scan_cond object: ", 3*x, " through, ", 3*x+2)
     print("")
     print("-----------------------")
     
+    candidate_genes <- c(candidate_genes, names(scan_cond[3*x]))
     my_scan_func(x)
   }
   x = x + 1
 }
+
+print(candidate_genes)
 
 # [1] "Ptpn13"
 # [1] "Dck"
@@ -416,6 +435,10 @@ while (2+3*x < length(summary(subset(scan_cond, chr = 5))))
 # [1] "Hsd17b11"
 # [1] "Ppbp"
 
+
+# Thap6
+# Pdgfra
+# Scfd2
 summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Ptpn13", "Dck", "Prdm8", "Rchy1", "Hsd17b11", "Ppbp"))]
 
 
