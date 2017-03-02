@@ -3,7 +3,7 @@
 # Model: 
 # decreased Atg genes -> increased insulin -> higher blood glucose
 rm(list=ls())
-directory <- "/home/daniel14/CompBioProjects/BTBRxB6/data"
+directory <- "/home/daniel14/Il6_Mouse_Research/data"
 setwd(directory)
 getwd()
 
@@ -14,11 +14,14 @@ library(ggplot2)
 load(file = "BTBR.clean.data.Rdata")
 
 
-### Define functions that we will use in the analysis below
-source("functions.R")
+# ### Define functions that we will use in the analysis below
+# source("functions.R")
+
+
+###############################################
 ####
 # fit causal models to a triplet with BIC scoring
-# X is a transcript used here as first argument to make "apply" easy
+# X is a transcript used here as first argument to make "apply" easy. A gene expression.
 # Y is a clincal trait
 # Q is a genotype (factor or numeric)
 
@@ -216,6 +219,7 @@ for(i in 16:ncol(f2g$pheno)){
   scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "atg5_islet", "atg7_islet"), addcovar=f2g$pheno[,i], method="hk") )
 }
 summary(scan_cond)
+
 # Re-name the conditional scan columns with the gene symbol. Every 3 columns
 # will reference a gene scanned conditionally on insulin, Atg5, and Atg7 in
 # that order.

@@ -6,7 +6,7 @@
 #
 # Clear environmental variables
 rm(list=ls())
-setwd("/home/daniel14/CompBioProjects/BTBRxB6/data")
+setwd("/home/daniel14/Il6_Mouse_Research/data")
 load(file = "BTBR.clean.data.Rdata")
 
 # load libraries
