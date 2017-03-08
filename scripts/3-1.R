@@ -20,7 +20,7 @@ load(file = "BTBR.clean.data.Rdata")
 
 ####
 # fit causal models to a triplet with BIC scoring
-# X is a transcript used here as first argument to make "apply" easy
+# X is a transcript used here as first argument to make "apply" easy. Gene expression
 # Y is a clincal trait
 # Q is a genotype (factor or numeric)
 
@@ -96,6 +96,8 @@ Il6ra_adipose <- adipose.rz[, annot[grep("Il6ra", annot$gene1), 1]]
 Il6st_adipose <- adipose.rz[, annot[grep("Il6st", annot$gene1), 1]]
 
 # Move the clinical and gene expression phenotypes in to the cross object.
+
+#phenotypes.rz$IL.6[phenotypes.rz$IL.6 < 0 & is.numeric(phenotypes.rz$IL.6)] <- NA
 f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("GLU.10wk","INS.10wk", "IL.6")], Insrr_gastroc, Insrr_adipose, Il6_adipose, Il6ra_adipose, Il6st_adipose, Il6_gastroc)
 
 # look at all pairwise scatterplots of clinical and expression traits
@@ -177,6 +179,45 @@ add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
 plot(scan1, lodcolumn = 9, main = "Quantitative Trait Loci for Il6 Expression in Gastrocnemius Tissue", ylab = "Il6 Muscle Exp", ylim = c(0, 7))
 add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
 add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+
+par(mfrow=c(5, 2))
+plot(scan1, lodcolumn = 1, main = "Quantitative Trait Loci for Insrr Expression in Adipose Tissue", ylab = "Insrr Adipose Exp", ylim = c(0,7) )
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 2, main = "Quantitative Trait Loci for Insrr Expression in Gastrocnemius Tissue", ylab = "Insrr Muscle Exp", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 3, main = "Quantitative Trait Loci for Clinical IL-6 Plasma Levels", ylab = "IL-6 Levels", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 4, main = "Quantitative Trait Loci for Il6 Expression in Adipose Tissue", ylab = "IL-6 Adipose Exp", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 5, main = "Quantitative Trait Loci for Il6ra Expression in Adipose Tissue", ylab = "Ilra Adipose Exp", ylim = c(0, 7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 6, main = "Quantitative Trait Loci for Il6st Expression in Adipose Tissue", ylab = "Il6st Adipose Exp", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 7, main = "Quantitative Trait Loci for Insulin at 10 weeks", ylab = "Insulin Levels", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 8, main = "Quantitative Trait Loci for Glucose at 10 weeks", ylab = "Glucose Levels", ylim = c(0,7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
+plot(scan1, lodcolumn = 9, main = "Quantitative Trait Loci for Il6 Expression in Gastrocnemius Tissue", ylab = "Il6 Muscle Exp", ylim = c(0, 7))
+add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+
 
 
 # View genome scan summaries in different formats.
@@ -332,7 +373,7 @@ scan_cond <- scanone(f2g,  pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addco
 
 
 for(i in 14:ncol(f2g$pheno)){
-  scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "IL.6", "Il6_adipose"), addcovar=f2g$pheno[,i], method="hk"))
+  scan_cond <- cbind(scan_cond, scanone(f2g, pheno.col=c("INS.10wk", "Il6_adipose", "IL.6"), addcovar=f2g$pheno[,i], method="hk"))
 }
 summary(scan_cond)
 
@@ -364,6 +405,15 @@ summary(names(scan_cond))
 # for the first two columns in the scan object, which are 
 # chromosome number and cM position.
 
+
+par(mfrow=c(6,1), mar=c(3,4,1,4) + 0.1)
+for( i in 1:(ncol(scan_cond))){
+  plot(scan_cond, lodcolumn=i, main=names(scan_cond)[i+2], chr =5)
+  add.threshold(scan1, perms=perm1, alpha=0.05, lty="dashed", lwd=2, col="orange")
+  add.threshold(scan1, perms=perm1, alpha=0.10, lty="dashed", lwd=2, col="purple")
+}
+
+
 my_scan_func <- function(x){
   par(mfrow=c(2, 3))
   
@@ -382,19 +432,20 @@ my_scan_func <- function(x){
   
   #Find lod column number of Chst1 insulin, Chst1, il6, and Chst1 il6 adipose exp in scan_cond
   
-  plot(scan_cond, chr = 5, lodcolumn = 3*x, main = paste("Insulin Scan with",  names(scan_cond[3*x]) , " Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
+  plot(scan_cond, chr = 5, lodcolumn = 3*(x-1)+1, main = paste("Insulin Scan with",  names(scan_cond[3*x]), " Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
   
-  plot(scan_cond, chr = 5, lodcolumn = 3*x+1, main = paste("Il6 Adipose Exp Scan with",  names(scan_cond[3*x+1]) , "Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
+  plot(scan_cond, chr = 5, lodcolumn = 3*(x-1)+2, main = paste("Il6 Adipose Exp Scan with",  names(scan_cond[3*x+1]), "Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
   
   
-  plot(scan_cond, chr = 5, lodcolumn = 3*x + 2, main = paste("IL-6 Scan with",  names(scan_cond[3*x+2]) , "Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
+  plot(scan_cond, chr = 5, lodcolumn = 3*(x-1)+3, main = paste("IL-6 Scan with",  names(scan_cond[3*x+2]), "Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
   add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
   add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 }
+
 
 
 
@@ -402,77 +453,53 @@ my_scan_func <- function(x){
 # significance threshold of 3.67 only for insulin,, Il6 Adipose Expression, and Clinical IL-6 levels?
 summary(subset(scan_cond, chr = 5),  thresholds = c(9.1, 7.1, 6.3, 6.3,3.3))
 
-x = 2
+x = 1
 lod_threshold = 3.67
 candidate_genes <- vector()
 while (2+3*x < length(summary(subset(scan_cond, chr = 5))))
 {
   scores = vector()
-  for (lod_score in summary(subset(scan_cond, chr = 5, threshold = c(9.1, 7.1, 6.3, 6.3, 3.3)))[(3*x):(2+3*x)]) #We want to skip the first five So that's why x starts at 2.
+  for (lod_score in summary(subset(scan_cond, chr = 5, threshold = c(9.1, 7.1, 6.3, 6.3, 3.3)))[(3*x+1):(3*x+3)]) #We want to skip the first five So that's why x starts at 2.
   {
     scores <- c(scores, lod_score)
     print(scores)
   }
   if (length(scores[scores < lod_threshold]) == 3)
   {
-    print(names(scan_cond[3*x]))
-    cat("Lod column numbers in scan_cond object: ", 3*x, " through, ", 3*x+2)
+    print(names(scan_cond[3*x+1]))
+    cat("Lod column numbers in scan_cond object: ", 3*(x-1)+1, " through, ", 3*(x-1)+3)
     print("")
     print("-----------------------")
-    
     candidate_genes <- c(candidate_genes, names(scan_cond[3*x]))
     my_scan_func(x)
   }
   x = x + 1
 }
-
 print(candidate_genes)
 
-# [1] "Ptpn13"
-# [1] "Dck"
-# [1] "Prdm8"
-# [1] "Rchy1"
-# [1] "Hsd17b11"
-# [1] "Ppbp"
+# "Scfd2"    "Pdgfra"   "Lnx1"     "Thap6"    "Hsd17b13" "Cxcl5"   
+summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdgfra", "Lnx1", "Thap6", "Hsd17b13", "Cxcl5"))]
 
 
-# Thap6
+
+# Pkd2 (IL-6, il6)
+
+# Lnx1 (Insulin, Il6 adipose)
+
+# Maybe BC005561 on IL-6, insulin
+# Grxcr1 (insulin, IL-6)
+# Tmem175 (INsulin, IL-6)
+# Tmprss11f (Insulin, IL-6)
+# Uso1 (Insulin, IL-6)
+# Grxcr1 (Insulin, IL-6)
+# BC005561 (Insulin, IL-6)
+# Afp (insulin, IL-6)
+
+# Cxcl5
+# Hsd17b13
 # Pdgfra
-# Scfd2
-summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Ptpn13", "Dck", "Prdm8", "Rchy1", "Hsd17b11", "Ppbp"))]
+# Thap6
 
-
-# Plot each and compare to original scans for insulin, il6, and il6 expression.
-par(mfrow=c(2, 3))
-
-plot(scan1, lodcolumn = 7, main = "QTL for Clinical Insulin Plasma Levels at 10 Weeks", ylab = "Insulin Levels", ylim = c(0, 7))
-add.threshold(scan1, perms=perm1, alpha=0.05, lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-plot(scan1, lodcolumn = 4, main = "Quantitative Trait Loci for Il6 Expression in Adipose Tissue", ylab = "Il6 Adipose Expression", ylim = c(0, 7))
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
-
-plot(scan1, lodcolumn = 3, main = "Quantitative Trait Loci for Clinical IL-6 Plasma Levels", ylab = "IL-6 Levels", ylim= c(0, 7))
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
-
-# Ptpn13 conditional scans
-
-#Find lod column number of Chst1 insulin, Chst1, il6, and Chst1 il6 adipose exp in scan_cond
-plot(scan_cond, lodcolumn = 103, main = "Insulin Scan with Chst1 Adipose Expression as Covariate", ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-plot(scan_cond, lodcolumn = 105, main = "Il6 Adipose Exp Scan with Chst1 Adipose Exp as Covariate", ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-plot(scan_cond, lodcolumn = 104, main = "IL-6 Scan with Chst1 Adipose Expression as Covariate", ylim = c(0, 7), ylab = "IL-6 Levels") #il6
-add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
-add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
-
-#
 
 
 
@@ -484,49 +511,93 @@ add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
 
 grep("Ins", annot$gene1)
 
+Pdgfra_adipose <- adipose.rz[, annot[grep("Pdgfra", annot$gene1), 1]]
+Cxcl5_adipose <- adipose.rz[, annot[grep("Cxcl5", annot$gene1), 1]]
+Hsd17b13_adipose <- adipose.rz[, annot[grep("Hsd17b13", annot$gene1), 1]]
+Thap6_adipose <- adipose.rz[, annot[grep("Thap6", annot$gene1), 1]]
 
-Chst1_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Chst1")]]
-Chst1_gastroc <- gastroc.rz[,annot$a_gene_id[which(annot$gene_symbol=="Chst1")]]
+
 Ins_islet <- islet.rz[, annot[grep("Ins$", annot$gene1), 1]]
 
-
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Chst1_adipose, Il6_adipose)
+phenotypes.rz$IL.6[phenotypes.rz$IL.6 < 0 & is.numeric(phenotypes.rz$IL.6)] <- NA  # Fix IL-6 data. Replace all 0 with n/a.
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Cxcl5_adipose, Hsd17b13_adipose, Pdgfra_adipose, Thap6_adipose)
 # look at all pairwise scatterplots of clinical and expression traits
 names(f2g$pheno)
 par(mfrow=c(1,1))
 pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
 
+#Pdgfra IL.6
+#Pdgfra INS
+#Pdgfra Il6_adipose
+
+#Scatterplots show that Pdgfra seems to be only revelant one.
 
 
 
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "GLU.10wk", "IL.6")], Chst1_adipose, Chst1_gastroc,  Il6_adipose, Il6ra_adipose)
+
+# Set Q5 as the genotype at the snip.
+numbers <- lapply(f2g$geno[[5]]$data[,find.marker(f2g, 5, (42.7+65.3)/2)], na.omit)
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(numbers))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+names(f2g$pheno)
+#Plot Pdgfra_adipose expression against Insulin
+f2g$pheno <- transform(f2g$pheno, Pdgfra_adipose)
 par(mfrow=c(1,1))
-pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
-
-#########################################################################################
-
-
-
-
-#Some practice with 
-lm(formula = f2g$pheno$INS.10wk ~ sex)
-summary(lm(formula = f2g$pheno$INS.10wk ~ sex))
-BIC(lm(formula = f2g$pheno$INS.10wk ~ sex))
+qplot(Pdgfra_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+par(mfrow=c(1,1))
+qplot(Cxcl5_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+par(mfrow=c(1,1))
+qplot(Hsd17b13_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+par(mfrow=c(1,1))
+qplot(Thap6_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
 
-lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1)
-summary(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
-BIC(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
-#This model is better. (It has a lower BIC score). A difference of at least 5 is needed to differentiate between models.
+#Nothing was particularly interesting
 
 
-#We can automate this process
+# Tmem175 (INsulin, IL-6)
+# Tmprss11f (Insulin, IL-6)
+# Uso1 (Insulin, IL-6)
+# Grxcr1 (Insulin, IL-6)
+# BC005561 (Insulin, IL-6)
+# Afp (insulin, IL-6)
 
 
-triple.fit(X = f2g$pheno$Il6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q2)
+Tmem175_adipose <- adipose.rz[, annot[grep("Tmem175", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(Tmem175_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+Tmprss11f_adipose <- adipose.rz[, annot[grep("Tmprss11f", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(Tmprss11f_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+Uso1_adipose <- adipose.rz[, annot[grep("Uso1", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(Uso1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+Grxcr1_adipose <- adipose.rz[, annot[grep("Grxcr1", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(Grxcr1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+BC005561_adipose <- adipose.rz[, annot[grep("BC005561", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(BC005561_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+Afp_adipose <- adipose.rz[, annot[grep("Afp", annot$gene1), 1]]
+par(mfrow=c(1,1))
+qplot(Afp_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
 
-#If the complex model is smallest, we are at the dead end cuz we have to assume that is the best model.
+
+# B -> 
+# H -> Heterozygous
+# R -> BTBR
+
+
+
+#Causal and independent models seem to be the best.
+triple.fit(X = f2g$pheno$Il6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+
 
 
 
@@ -549,8 +620,11 @@ names(f2g$pheno)
 # plot insulin against Pdrg1 expression
 pdrg1_islet <- islet.rz[, annot[grep("Pdrg1", annot$gene1), 1]]
 f2g$pheno <- transform(f2g$pheno, pdrg1_islet)
+par(mfrow=c(1,1))
 qplot(pdrg1_islet, INS.10wk, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
 # There's reasonably good correlation between genotype classes.
+
+
 
 #####
 # check 4 conditions for Pdrg1 gene expression 
@@ -600,5 +674,86 @@ with(f2g$pheno,triple.fit(pdrg1_islet, atg5_islet, Q2))
 
 #  causal model has lowest score but differs by only 5 from complex model
 #  therefore inconclusive
+
+
+
+
+
+
+
+########## random stuff. code that was taken out.
+
+
+
+#########################################################################################
+
+
+#par(mfrow=c(3, 3))
+
+
+# plot(scan1, chr =5, lodcolumn = 7, main = "QTL for Clinical Insulin Plasma Levels at 10 Weeks", ylab = "Insulin Levels", ylim = c(0, 7))
+# add.threshold(scan1, perms=perm1, alpha=0.05, lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# plot(scan1, chr =5,  lodcolumn = 4, main = "Quantitative Trait Loci for Il6 Expression in Adipose Tissue", ylab = "Il6 Adipose Expression", ylim = c(0, 7))
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+# 
+# plot(scan1, chr =5, lodcolumn = 3, main = "Quantitative Trait Loci for Clinical IL-6 Plasma Levels", ylab = "IL-6 Levels", ylim= c(0, 7))
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed",lwd=2,col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed",lwd=2,col="purple")
+# 
+# #Pdgfra
+# 
+# plot(scan_cond, chr = 5, lodcolumn = 106, main = paste("Insulin Scan with Pdgfra Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# plot(scan_cond, chr = 5, lodcolumn = 107, main = paste("Il6 Adipose Exp Scan with Pdgfra Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# plot(scan_cond, chr = 5, lodcolumn = 108, main = paste("IL-6 Scan with Pdgfra Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# #Thap6
+# plot(scan_cond, chr = 5, lodcolumn = 307, main = paste("Insulin Scan with Thap6 Adipose Expression as Covariate"), ylab= "Insulin Levels", ylim = c(0, 7)) #insulin
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# plot(scan_cond, chr = 5, lodcolumn = 308, main = paste("Il6 Adipose Exp Scan with Thap6 Adipose Expression as Covariate"), ylab = "Il6 Adipose Exp", ylim = c(0, 7)) #il6 adipose
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+# 
+# plot(scan_cond, chr = 5, lodcolumn = 309, main = paste("IL-6 Scan with Thap6 Adipose Expression as Covariate"), ylim = c(0, 7), ylab = "IL-6 Levels") #il6
+# add.threshold(scan1, perms=perm1, alpha=0.05,lty="dashed", lwd=2, col="orange")
+# add.threshold(scan1, perms=perm1, alpha=0.10,lty="dashed", lwd=2, col="purple")
+
+
+
+
+# #Some practice with 
+# lm(formula = f2g$pheno$INS.10wk ~ sex)
+# summary(lm(formula = f2g$pheno$INS.10wk ~ sex))
+# BIC(lm(formula = f2g$pheno$INS.10wk ~ sex))
+# 
+# 
+# lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1)
+# summary(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
+# BIC(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
+# #This model is better. (It has a lower BIC score). A difference of at least 5 is needed to differentiate between models.
+# 
+# 
+# #We can automate this process
+# 
+
+
+
+#If the complex model is smallest, we are at the dead end cuz we have to assume that is the best model.
+
+# f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "GLU.10wk", "IL.6")], Chst1_adipose, Chst1_gastroc,  Il6_adipose, Il6ra_adipose)
+# par(mfrow=c(1,1))
+# pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
 
 

@@ -300,7 +300,7 @@ which(names(scan_cond)  %in% c("Pdrg1", "Gatm", "Nphp1", "Cds2", "Ino80",  "Dtd1
 f2g <- fill.geno(f2g, method="argmax")
 #
 #create a three level factor Q2 and add to pheno data
-f2g$pheno <- transform(f2g$pheno,Q2 = as.factor(f2g$geno[[2]]$data[,find.marker(f2g, 2, 75.2)]))
+f2g$pheno <- transform(f2g$pheno, Q2 = as.factor(f2g$geno[[2]]$data[,find.marker(f2g, 2, 75.2)]))
 levels(f2g$pheno$Q2) <- c("B","H","R")
 names(f2g$pheno)
 # plot insulin against Pdrg1 expression
