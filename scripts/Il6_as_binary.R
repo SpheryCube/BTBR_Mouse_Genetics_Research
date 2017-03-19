@@ -83,17 +83,16 @@ grep("Il6", annot$gene1, value = TRUE)
 annot[grep("Insrr", annot$gene1),]
 annot[grep("Insrr", annot$gene1), 1]
 
-# Retrieve Park2 expression data from the islet tissue.
 Insrr_gastroc <- gastroc.rz[, annot[grep("Insrr", annot$gene1), 1]]
 Insrr_adipose <- adipose.rz[, annot[grep("Insrr", annot$gene1), 1]]
-
-annot[grep("Il6", annot$gene1), 1]
-
 
 Il6_adipose <- adipose.rz[, annot[grep("Il6$", annot$gene1), 1]]
 Il6_gastroc <- gastroc.rz[, annot[grep("Il6$", annot$gene1), 1]]
 Il6ra_adipose <- adipose.rz[, annot[grep("Il6ra", annot$gene1), 1]]
 Il6st_adipose <- adipose.rz[, annot[grep("Il6st", annot$gene1), 1]]
+
+phenotypes.rz$IL.6[phenotypes.rz$IL.6 > 0 & is.numeric(phenotypes.rz$IL.6)] <- 1  # Fix IL-6 data. Replace all 0 with n/a.
+phenotypes.rz$IL.6[phenotypes.rz$IL.6 <= 0 & is.numeric(phenotypes.rz$IL.6)] <- -1  # Fix IL-6 data. Replace all 0 with n/a.
 
 # Move the clinical and gene expression phenotypes in to the cross object.
 
@@ -250,6 +249,10 @@ find.marker(cross = f2g, chr = 5, pos = 16.3)
 find.marker(cross = f2g, chr = 5, pos = 65.3)
 #Mine: rs13478154 (27114401 bp) and rs13478458 (110340025 bp)
 
+
+
+
+
 chr5_genes <- scan(file = "/home/daniel14/Il6_Mouse_Research/data/ch5_genes(large).txt",  what = "character",   skip = 1)
 
 
@@ -264,6 +267,14 @@ find.marker(cross = f2g, chr = 5, pos = 65.3)
 
 chr5_genes_small <- scan(file = "/home/daniel14/Il6_Mouse_Research/data/ch5_genes(small).txt",  what = "character",   skip = 1)
 
+
+
+################ Biggest Interval #######################33
+find.marker(cross = f2g, chr = 5, pos = 15.4)
+find.marker(cross = f2g, chr = 5, pos = 71.3)
+# rs13478154 (27114401 ) to rs13478536 ( 132255439)
+
+chr5_genes_big <- scan(file = "/home/daniel14/Il6_Mouse_Research/data/ch5_genes_big.txt",  what = "character",   skip = 1)
 
 # To download gene symbols, click on BioMart, choose database
 # Ensembl Genes, choose dataset Mus musculus genes. 
@@ -358,7 +369,7 @@ summary(scan_Il6_adipose)
 # in as covariate, running the scan for insulin, IL.6 and Il6_adipose
 
 # Add chr5 gene expression traits into cross object.
-f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_small,annot$gene1, nomatch = 0)])
+f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_big, annot$gene1, nomatch = 0)])
 names(f2g$pheno)
 
 # Column names for gene expression traits are the microarray probe IDs.
@@ -455,7 +466,7 @@ my_scan_func <- function(x){
 
 
 # Which genes drop the chromosome 5 peak below the
-# significance threshold of 3.67 only for insulin,, Il6 Adipose Expression, and Clinical IL-6 levels?
+# significance threshold of 3.67 for insulin,, Il6 Adipose Expression, AND Clinical IL-6 levels?
 summary(subset(scan_cond, chr = 5),  thresholds = c(9.1, 7.1, 6.3, 6.3,3.3))
 
 x = 1
@@ -482,8 +493,9 @@ while (2+3*x < length(summary(subset(scan_cond, chr = 5))))
 }
 print(candidate_genes)
 
-# "Scfd2"    "Pdgfra"   "Lnx1"     "Thap6"    "Hsd17b13" "Cxcl5"   
-summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdgfra", "Lnx1", "Thap6", "Hsd17b13", "Cxcl5"))]
+# "Scfd2"    "Pdgfra"   "Lnx1"     "Thap6"    "Hsd17b13" "Cxcl5"  Cmklr1
+
+summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdgfra", "Lnx1", "Thap6", "Hsd17b13", "Cxcl5", "Cmklr1"))]
 
 
 
@@ -507,7 +519,6 @@ summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdg
 
 
 
-
 #######################################################################################
 ####################### More Scatterplot Matrices #####################################
 #######################################################################################
@@ -517,10 +528,12 @@ summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdg
 grep("Ins", annot$gene1)
 
 #Primary Genes
-Pdgfra_adipose <- adipose.rz[, annot[grep("Pdgfra", annot$gene1), 1]]
-Cxcl5_adipose <- adipose.rz[, annot[grep("Cxcl5", annot$gene1), 1]]
-Hsd17b13_adipose <- liver.rz[, annot[grep("Hsd17b13", annot$gene1), 1]]
-Thap6_adipose <- liver.rz[, annot[grep("Thap6", annot$gene1), 1]]
+Pdgfra_adipose <- adipose.rz[, annot[grep("Pdgfra", annot$gene1), 1]] #39.55 
+Cxcl5_adipose <- adipose.rz[, annot[grep("Cxcl5", annot$gene1), 1]] #44.78
+Hsd17b13_adipose <- liver.rz[, annot[grep("Hsd17b13", annot$gene1), 1]] #50.46
+Thap6_adipose <- liver.rz[, annot[grep("Thap6", annot$gene1), 1]] #45.62
+Cmklr1_adipose <- adipose.rz[, annot[grep("Cmklr1", annot$gene1), 1]] #55.55
+
 
 #Secondary Genes
 Tmem175_adipose <- adipose.rz[, annot[grep("Tmem175", annot$gene1), 1]]
@@ -534,8 +547,9 @@ Afp_adipose <- adipose.rz[, annot[grep("Afp", annot$gene1), 1]]
 
 Ins_islet <- islet.rz[, annot[grep("Ins$", annot$gene1), 1]]
 
-phenotypes.rz$IL.6[phenotypes.rz$IL.6 < 0 & is.numeric(phenotypes.rz$IL.6)] <- NA  # Fix IL-6 data. Replace all 0 with n/a.
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Cxcl5_adipose, Hsd17b13_adipose, Pdgfra_adipose, Thap6_adipose)
+
+
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Cxcl5_adipose, Hsd17b13_adipose, Pdgfra_adipose, Thap6_adipose, Cmklr1_adipose)
 # look at all pairwise scatterplots of clinical and expression traits
 names(f2g$pheno)
 par(mfrow=c(1,1))
@@ -548,10 +562,14 @@ pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hi
 #Scatterplots show that Pdgfra seems to be only revelant one.
 
 #Add primary AND secondary genes now.
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Cxcl5_adipose, Hsd17b13_adipose, Pdgfra_adipose, Thap6_adipose, Tmem175_adipose, Tmprss11f_adipose, Uso1_adipose, Grxcr1_adipose, BC005561_adipose, Afp_adipose)
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Cxcl5_adipose, Hsd17b13_adipose, Pdgfra_adipose, Thap6_adipose, Cmklr1_adipose)
+                                      
+#Tmem175_adipose, Tmprss11f_adipose, Uso1_adipose, Grxcr1_adipose, BC005561_adipose, Afp_adipose)
 
-# Set Q5 as the genotype at the snip closest to the original confidence interval range..
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)]))
+# The Q should be set to the closest marker to whatever gene we are looking at.
+
+#39.55  44.78  50.46  45.62 55.55
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 44.78)]))
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 names(f2g$pheno)
 
@@ -569,13 +587,7 @@ names(f2g$pheno)
 # Analysis with Primary Candidate Genes (Genes that blocked all three peaks)
 
 #Plot Pdgfra_adipose expression against Insulin
-f2g$pheno <- transform(f2g$pheno, Pdgfra_adipose)
-par(mfrow=c(1,1))
-qplot(Pdgfra_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
-f2g$pheno <- transform(f2g$pheno, Cxcl5_adipose)
-par(mfrow=c(1,1))
-qplot(Cxcl5_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
 f2g$pheno <- transform(f2g$pheno, Hsd17b13_adipose)
 par(mfrow=c(1,1))
@@ -592,27 +604,98 @@ qplot(Thap6_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smoot
 # Thap6. All four diverge.
 
 #Insulin
-print("BIC Analysis with Insulin. Primary Candidate Genes")
-triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive #5.997
-triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive #5.587
+print("BIC Analysis with Insulin and IL-6. Primary Candidate Genes")
+
+
+##################            Pdgfra
+print("##################            Pdgfra     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 39.55)]))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+print("##################            Pdgfra - Insulin     ##########################")
+triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+print("##################            Pdgfra - IL6     ##########################")
+triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Pdgfra_adipose)
+par(mfrow=c(2,1))
+qplot(Pdgfra_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Pdgfra_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+
+##################            Cxcl5
+print("##################            Cxcl5     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 44.78)]))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+print("##################            Cxcl5 - Insulin     ##########################")
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive 
+print("##################            Cxcl5 - IL6     ##########################")
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5) #Reactive 
+
+
+f2g$pheno <- transform(f2g$pheno, Cxcl5_adipose)
+par(mfrow=c(2,1))
+qplot(Cxcl5_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Cxcl5_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+
+##################            Hsd16b13     ##########################
+print("##################            Hsd16b13     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 50.46)]))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+print("##################            Hsd16b13 - Insulin     ##########################")
 triple.fit(X = f2g$pheno$Hsd17b13_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) 
-triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Independent 5.929
+print("##################            Hsd16b13 - IL6     ##########################")
+triple.fit(X = f2g$pheno$Hsd17b13_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5) 
 
-#IL6
-print("BIC Analysis with IL-6. Primary Candidate Genes")
-triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5) 
-triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Hsd17b13_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Hsd17b13_adipose)
+par(mfrow=c(2,1))
+qplot(Hsd17b13_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Hsd17b13_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            Thap6
+print("##################            Thap6     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 45.62)]))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+print("##################            Thap6 - Insulin     ##########################")
+triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+print("##################            Thap6 - Insulin     ##########################")
 triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-#Have not analyzed above 4 triple fits.
 
 
-print("BIC Analysis with IL6 adipose expression. Primary Candidate Genes")
-triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5) 
-triple.fit(X = f2g$pheno$Hsd17b13_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
-#Have not analyzed above 4 triple fits.
+f2g$pheno <- transform(f2g$pheno, Thap6_adipose)
+par(mfrow=c(2,1))
+qplot(Thap6_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Thap6_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+
+##################            Cmklr1          
+print("##################            Cmklr1     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 55.55)]))
+levels(f2g$pheno$Q5) <- c("B", "H", "R")
+
+print("##################            Cmklr1 - Insulin     ##########################")
+triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+print("##################            Cmklr1 - IL6     ##########################")
+triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+
+f2g$pheno <- transform(f2g$pheno, Cmklr1_adipose)
+par(mfrow=c(2,1))
+qplot(Cmklr1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Cmklr1_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+#####################################################################################
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -627,12 +710,6 @@ triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno
 # BC005561 (Insulin, IL-6)
 # Afp (insulin, IL-6)
 
-
-
-
-f2g$pheno <- transform(f2g$pheno, Tmem175_adipose)
-par(mfrow=c(1,1))
-qplot(Tmem175_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
 f2g$pheno <- transform(f2g$pheno, Tmprss11f_adipose)
 par(mfrow=c(1,1))
@@ -655,26 +732,71 @@ par(mfrow=c(1,1))
 qplot(Afp_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
 
 
-print("Insulin BIC analyses with secondary candidate genes")
-triple.fit(X = f2g$pheno$Tmem175_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Tmprss11f_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive 6.595
-triple.fit(X = f2g$pheno$Uso1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Grxcr1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive 5.555
-triple.fit(X = f2g$pheno$BC005561_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-triple.fit(X = f2g$pheno$Afp_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+print("BIC analyses with secondary candidate genes")
 
-print("IL-6 BIC analyses with secondary candidate genes") #None had models that stood out.
+
+##################            Tmem175     ##########################
+triple.fit(X = f2g$pheno$Tmem175_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
 triple.fit(X = f2g$pheno$Tmem175_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Tmem175_adipose)
+par(mfrow=c(2,1))
+qplot(Tmem175_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Tmem175_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            Tmprss11f     ##########################
+triple.fit(X = f2g$pheno$Tmprss11f_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive 6.595
 triple.fit(X = f2g$pheno$Tmprss11f_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Tmprss11f_adipose)
+par(mfrow=c(2,1))
+qplot(Tmprss11f_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Tmprss11f_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            Uso1     ##########################
+triple.fit(X = f2g$pheno$Uso1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
 triple.fit(X = f2g$pheno$Uso1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Uso1_adipose)
+par(mfrow=c(2,1))
+qplot(Uso1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Uso1_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            Cmklr1     ##########################
+triple.fit(X = f2g$pheno$Grxcr1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive 5.555
 triple.fit(X = f2g$pheno$Grxcr1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Grxcr1_adipose)
+par(mfrow=c(2,1))
+qplot(Grxcr1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Grxcr1_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            BC005561     ##########################
+triple.fit(X = f2g$pheno$BC005561_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
 triple.fit(X = f2g$pheno$BC005561_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, BC005561_adipose)
+par(mfrow=c(2,1))
+qplot(BC005561_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(BC005561_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+##################            Afp_adipose     ##########################
+triple.fit(X = f2g$pheno$Afp_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
 triple.fit(X = f2g$pheno$Afp_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+
+f2g$pheno <- transform(f2g$pheno, Afp_adipose)
+par(mfrow=c(2,1))
+qplot(Afp_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+qplot(Afp_adipose, f2g$pheno$IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+
+
 
 
 
 ##########################################################
-
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5) #Reactive. 7.656
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5) #Reactive. 7.656
 ##########################################################
 # check 4 conditions for Cxcl5 gene expression 
 # as a mediator of Q5 effect on insulin
@@ -682,21 +804,21 @@ triple.fit(X = f2g$pheno$Afp_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
 #If the conditions are met, we have a case for a pathway.
 
 #davidakenny.net/cm/mediate.htm
-####  i) Insulin is linked to Q2                    # X -> Y
-anova(lm(f2g$pheno$INS.10wk ~ Sex + Q5, data = f2g$pheno))
+####  i) Insulin is linked to Q5                    # X -> Y
+anova(lm(INS.10wk ~ Sex + Q5, data = f2g$pheno))
 # significant
 
 ####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
-anova(lm(f2g$pheno$Hsd17b13_adipose ~ Sex + Q5, data = f2g$pheno))
+anova(lm(Cxcl5_adipose ~ Sex + Q5, data = f2g$pheno))
 # significant
 
 ####  iii) Insulin not linked after accounting for Q5   
-anova(lm(f2g$pheno$INS.10wk ~ Sex + f2g$pheno$Hsd17b13_adipose + Q5, data = f2g$pheno))
+anova(lm(INS.10wk ~ Sex + Cxcl5_adipose + Q5, data = f2g$pheno))
 # not significant * .
 
 ####  iv) Cxc gene expression is still linked after 
 # accounting for insulin
-anova(lm(f2g$pheno$Hsd17b13_adipose ~ Sex + f2g$pheno$INS.10wk + Q5, data = f2g$pheno))
+anova(lm(Cxcl5_adipose ~ Sex + INS.10wk + Q5, data = f2g$pheno))
 # significant ***
 
 # all 4 conditions for a mediator are satisfied

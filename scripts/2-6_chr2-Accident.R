@@ -464,36 +464,48 @@ f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.
 par(mfrow=c(1,1))
 pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
 
+
+
+# Set Q2 as the genotype at the snip closest to the original confidence interval range..
+f2g$pheno <- transform(f2g$pheno, Q2 = as.factor(f2g$geno[[2]]$data[,find.marker(f2g, 2, 51.17)]))
+levels(f2g$pheno$Q2) <- c("B", "H", "R")
+names(f2g$pheno)
+
+# B -> 
+# H -> Heterozygous
+# R -> BTBR
 #########################################################################################
+f2g$pheno <- transform(f2g$pheno, Chst1_adipose)
+par(mfrow=c(1,2))
+qplot(Chst1_adipose, INS.10wk, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
+qplot(Chst1_adipose, IL.6, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
+
+triple.fit(X = f2g$pheno$Chst1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q2)
+triple.fit(X = f2g$pheno$Chst1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q2)
+
+f2g$pheno <- transform(f2g$pheno, Chst1_gastroc)
+
+par(mfrow=c(1,2))
+qplot(Chst1_gastroc, INS.10wk, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
+qplot(Chst1_gastroc, IL.6, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
+
+triple.fit(X = f2g$pheno$Chst1_gastroc, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q2)
+triple.fit(X = f2g$pheno$Chst1_gastroc, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q2)
 
 
 
+######################################################3
+########## Effect Plots and BIC/Mediation Analysis ######
+#######################################################
 
-#Some practice with 
-lm(formula = f2g$pheno$INS.10wk ~ sex)
-summary(lm(formula = f2g$pheno$INS.10wk ~ sex))
-BIC(lm(formula = f2g$pheno$INS.10wk ~ sex))
-
-
-lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1)
-summary(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
-BIC(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
-#This model is better. (It has a lower BIC score). A difference of at least 5 is needed to differentiate between models.
-
-
-#We can automate this process
-
-
-triple.fit(X = f2g$pheno$Il6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q2)
-
-
-#If the complex model is smallest, we are at the dead end cuz we have to assume that is the best model.
-
+f2g$pheno <- transform(f2g$pheno, Chst1_adipose)
+par(mfrow=c(1,1))
+qplot(Chst1_adipose, INS.10wk, color=Q2, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q2), method="lm", se=FALSE)
 
 
 
 ##########################################################
-####  II. Mediation analysis
+####  II. Checking Mediation analysis conditions
 #  use linear models to compute mediation on the peak chr 8 marker
 #  this is just another way to get at the same question
 
@@ -561,5 +573,30 @@ with(f2g$pheno,triple.fit(pdrg1_islet, atg5_islet, Q2))
 
 #  causal model has lowest score but differs by only 5 from complex model
 #  therefore inconclusive
+
+
+#############################################
+# Random worthless stuff
+# #Some practice with 
+# lm(formula = f2g$pheno$INS.10wk ~ sex)
+# summary(lm(formula = f2g$pheno$INS.10wk ~ sex))
+# BIC(lm(formula = f2g$pheno$INS.10wk ~ sex))
+# 
+# 
+# lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1)
+# summary(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
+# BIC(lm(formula = f2g$pheno$INS.10wk ~ sex + f2g$pheno$Chst1))
+# #This model is better. (It has a lower BIC score). A difference of at least 5 is needed to differentiate between models.
+# 
+# 
+# #We can automate this process
+# 
+# 
+# triple.fit(X = f2g$pheno$Il6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q2)
+# 
+# 
+# #If the complex model is smallest, we are at the dead end cuz we have to assume that is the best model.
+
+
 
 
