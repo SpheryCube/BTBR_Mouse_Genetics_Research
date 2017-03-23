@@ -20,7 +20,7 @@ library(ggplot2)
 Insrr_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Insrr")]]
 Il6_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Il6")]]
 
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")],phenotypes.rz[c("INS.10wk", "IL.6")], Insrr_adipose, Il6_adipose)
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")],phenotypes.rz[c("INS.10wk", "IL.6")], Il6_adipose)
 names(f2g$pheno)
 
 # Step 0:  Load qtlnet

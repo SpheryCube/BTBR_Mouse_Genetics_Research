@@ -563,15 +563,15 @@ print("##################            Thap6     ##########################")
 f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)])) #51.8
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
-print("##################            Thap6 - Insulin     ##########################")
+print("##################            Thap6 - Insulin     #########################")
 triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.929)
+# Reactive model is best. (beats complex by 5.929 points)
 
-print("##################            Thap6 - IL6     ##########################")
+print("##################            Thap6 - IL6     #############################")
 triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.783)
+# Reactive model is best. (beats complex by 5.783 points)
 
-print("##################            Thap6 - Il6 adipose expression     ##########################")
+print("##################            Thap6 - Il6 adipose expression     ##########")
 triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
 
 
@@ -629,14 +629,14 @@ print("##################            Cmklr1     ##########################")
 f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)]))
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
-print("##################            Cmklr1 - Insulin     ##########################")
+print("##################            Cmklr1 - Insulin     ######################")
 triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-    #The reactive model beats the causal model by 6.536
+# The reactive model beats the causal model by 6.536 points
 
-print("##################            Cmklr1 - IL6     ##########################")
+print("##################            Cmklr1 - IL6     ######################")
 triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
 
-print("##################            Cmklr1 - IL6 adipose expression     ##########################")
+print("##################   Cmklr1 - Il6 adipose expression     ###################")
 triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
 
 
