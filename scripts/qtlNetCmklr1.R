@@ -17,9 +17,11 @@ library(ggplot2)
 #source("myfunctions.R")
 
 #define variables
-Foxo1 <- islet.rz[,annot$a_gene_id[which(annot$gene_symbol=="Foxo1")]]
-Sirt1 <- islet.rz[,annot$a_gene_id[which(annot$gene_symbol=="Sirt1")]]
-f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")],phenotypes.rz[c("INS.10wk")],Foxo1,Sirt1)
+Thap6_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Thap6")]]
+Cmklr1_adipose <- adipose.rz[,annot$a_gene_id[which(annot$gene_symbol=="Cmklr1")]]
+Il6_adipose <- adipose.rz[, annot[grep("Il6$", annot$gene1), 1]]
+
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")],phenotypes.rz[c("INS.10wk", "IL.6")], Cmklr1_adipose, Il6_adipose)
 names(f2g$pheno)
 
 # Step 0:  Load qtlnet
