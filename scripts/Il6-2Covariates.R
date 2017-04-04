@@ -529,6 +529,9 @@ summary(scan2)
 summary(scan2, format = "tabByChr")
 summary(scan2, format = "tabByChr", perms=perm2, alpha = 0.05)
 
+
+plot(scan2, chr = 5, lodcolumn = c(1, 2, 3), col = c("red", "green", "blue"))
+
 #Shared peak on chromosome 6 between insulin (42.8 cm), Cmklr1 (52.8 cm) and Cxcl5 (46.0)
 #Chromosome 5 peak. Notice Ccng2_adipose shares a peak with IL6 (51.9). It is strongly associated with IL.6 (0.21 correlation)
 
@@ -559,15 +562,16 @@ levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
 print("##################            Ccng2 - Insulin     #########################")
 triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.929 points)
+#Inconclusive
 
 print("##################            Ccng2 - IL6     #############################")
 triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.783 points)
+#Causal model.
+
 
 print("##################            Ccng2 - Il6 adipose expression     ##########")
 triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
-
+#Inconclusive.
 
 
 f2g$pheno <- transform(f2g$pheno, Ccng2_adipose)
@@ -578,31 +582,34 @@ qplot(Ccng2_adipose, IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(ae
 
 
 ##########################################################
-# check 4 conditions for Thap6 gene expression 
+# check 4 conditions for Ccng2 gene expression 
 # as a mediator of Q5 effect on insulin
 # Normally this is done before doing BIC modeling, but we are going to do it in reverse.
-#If the conditions are met, we have a case for a pathway.
+# If the conditions are met, we have a case for a pathway.
 
 #davidakenny.net/cm/mediate.htm
-####  i) Insulin is linked to Q5                    # X -> Y
+####  i) IL-6 is linked to Q5                    # X -> Y
 anova(lm(f2g$pheno$IL.6 ~ Sex + Q5, data = f2g$pheno))
 # significant
 
-####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
+####  ii) Ccng2 gene expression is linked to Q5     # X -> M
 anova(lm(Ccng2_adipose ~ Sex + Q5, data = f2g$pheno))
 # significant
 
-####  iii) Insulin not linked after accounting for Q5   
+####  iii) IL-6 not linked after accounting for Q5   
 anova(lm(f2g$pheno$IL.6 ~ Sex + Ccng2_adipose + Q5, data = f2g$pheno))
 # not significant * .
 
-####  iv) Cxc gene expression is still linked after 
-# accounting for insulin
+####  iv) Ccng2 gene expression is still linked after 
+# accounting for IL-6
 anova(lm(Ccng2_adipose ~ Sex + f2g$pheno$IL.6 + Q5, data = f2g$pheno))
 # significant ***
 
 # all 4 conditions for a mediator are satisfied
+#Causal Q -> X -> Y
+# Q = genotype at location. X = gene expression. Y = IL-6 Levels
 
+# This implies that Ccng2 directly affects 
 
 
 ####  i) Insulin is linked to Q5                    # X -> Y
