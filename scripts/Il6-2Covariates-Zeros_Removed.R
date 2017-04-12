@@ -1,7 +1,10 @@
+# Test 2
+
+
 # Hypothesis: Decreased levels of autophagy gene expression in 
 # pancreatic islet will result in severe diabetic traits. 
 # Model: 
-# decreased Atg genes -> increased insulin -> higher blood glucose
+# Decreased Ccng2 genes -> increased insulin -> higher blood glucose
 
 rm(list=ls())
 directory <- "/home/daniel14/Il6_Mouse_Research/data/"
@@ -15,7 +18,7 @@ library(ggplot2)
 load(file = "BTBR.clean.data.Rdata")
 
 
-
+phenotypes.rz$IL.6[phenotypes.rz$IL.6 <= 0 & is.numeric(phenotypes.rz$IL.6)] <- NA  # Edit IL-6 data by replacing all 0s with n/a.
 
 
 ####
@@ -93,6 +96,17 @@ Il6st_adipose <- adipose.rz[, annot[grep("Il6st", annot$gene1), 1]]
 
 
 
+#phenotypes.rz$IL.6[phenotypes.rz$IL.6 < 0 & is.numeric(phenotypes.rz$IL.6)] <- NA
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("GLU.10wk","INS.10wk", "IL.6")], Il6_adipose, Il6ra_adipose)
+
+# look at all pairwise scatterplots of clinical and expression traits
+names(f2g$pheno)
+par(mfrow = c(1,1))
+pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
+
+
+
+
 # Move the clinical and gene expression phenotypes in to the cross object.
 
 #phenotypes.rz$IL.6[phenotypes.rz$IL.6 < 0 & is.numeric(phenotypes.rz$IL.6)] <- NA
@@ -102,6 +116,11 @@ f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("GLU.
 names(f2g$pheno)
 par(mfrow = c(1,1))
 pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
+
+
+
+
+
 
 
 # Pull out sex as a numeric variable so that it can be used as a covariate
@@ -371,7 +390,7 @@ summary(scan_Il6_adipose)
 # in as covariate, running the scan for insulin, IL.6 and Il6_adipose
 
 # Add chr5 gene expression traits into cross object.
-f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_big, annot$gene1, nomatch = 0)])
+f2g$pheno <- cbind(f2g$pheno,  adipose.rz[,match(chr5_genes_small, annot$gene1, nomatch = 0)])
 names(f2g$pheno)
 
 # Column names for gene expression traits are the microarray probe IDs.
@@ -480,11 +499,6 @@ print(candidate_genes)
 # "Scfd2"  "Pdgfra" "Srp72"  "Gtf3c2" "Thap6"  "Cmklr1" "Ccng2"  "Cxcl5" 
 
 
-
-###Find Candidate Genes
-
-#Thap6 and Cmklr1
-
 summary(subset(scan_cond, chr = 5))[,which(names(scan_cond) %in% c("Scfd2", "Pdgfra", "Srp72", "Gtf3c3", "Thap6", "Cmklr1", "Ccng2", "Cxcl5"))]
 
 
@@ -512,16 +526,18 @@ f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.
 names(f2g$pheno)
 par(mfrow=c(1,1))
 pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
-
-
+#Pdgfra-IL.6 0.1
+#Pdgfra-Il6_adipose -0.24
+#Cmklr1-Il.6 0.11
+#Cmklr1 - Il6_adipose -0.10
+# Ccng2-Il.6 0.11
+# Ccng2 - Il6_adipose 0.12
 
 
 scan2 <- scanone(f2g,  pheno.col = c("IL.6", "INS.10wk", "Il6_adipose", "Scfd2_adipose", "Pdgfra_adipose", "Srp72_adipose", "Thap6_adipose","Cmklr1_adipose","Ccng2_adipose","Cxcl5_adipose"), method = "hk", addcovar = sex)
-# Identify LOD significance thresholds for gene expression traits.
+
 perm2 <-scanone(f2g, pheno.col = 7, addcovar = sex, method = "hk", n.perm = 100, perm.Xsp = TRUE)
-
 summary(perm2)
-
 length(scan2)
 
 # View genome scan summaries in different formats.
@@ -536,28 +552,24 @@ plot(scan2, chr = 5, lodcolumn = c(1, 2, 3), col = c("red", "green", "blue"))
 #Chromosome 5 peak. Notice Ccng2_adipose shares a peak with IL6 (51.9). It is strongly associated with IL.6 (0.21 correlation)
 
 
+# Ccng2 has a 0.21 positive correlation with IL-6 and a 0.12 correlation with Il6 gene expression in adipose tissue.
+f2g$pheno <- cbind(f2g$pheno[,c("MouseNum","Sex","pgm")], phenotypes.rz[,c("INS.10wk", "IL.6")], Il6_adipose, Ccng2_adipose, Pdgfra_adipose, Cmklr1_adipose)
+par(mfrow=c(1,1))
+pairs(f2g$pheno[,4:length(f2g$pheno)], upper.panel=panel.cor,diag.panel=panel.hist)
 
 
 ####################################################################
 #############           Effect Plots and BIC analysis ##############
-######################################################################
+####################################################################
+
+########################################################################
+##################            Ccng2                   ##################            
+########################################################################
 
 
-##################            Ccng2
-##################            Ccng2
-##################            Ccng2
-##################            Ccng2
-##################            Ccng2
-
-
-
-##################            Ccng2
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 51.9)]))
-levels(f2g$pheno$Q5) <- c("B", "H", "R")
-names(f2g$pheno)
 
 print("##################            Ccng2     ##########################")
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 51.9)])) #51.8
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 51.9)])) #The 51.9 cM location was found from scan2 above.
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
 print("##################            Ccng2 - Insulin     #########################")
@@ -566,278 +578,55 @@ triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5
 
 print("##################            Ccng2 - IL6     #############################")
 triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-#Causal model.
+#Inconclusive 
 
-
-print("##################            Ccng2 - Il6 adipose expression     ##########")
+print("##################  Ccng2 - Il6 adipose expression     ##########")
 triple.fit(X = f2g$pheno$Ccng2_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
 #Inconclusive.
 
 
-f2g$pheno <- transform(f2g$pheno, Ccng2_adipose)
-par(mfrow=c(2,1))
-qplot(Ccng2_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
-qplot(Ccng2_adipose, IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+
+########################################################################
+##################            Cxcl5                   #################            
+########################################################################
 
 
 
-##########################################################
-# check 4 conditions for Ccng2 gene expression 
-# as a mediator of Q5 effect on insulin
-# Normally this is done before doing BIC modeling, but we are going to do it in reverse.
-# If the conditions are met, we have a case for a pathway.
-
-#davidakenny.net/cm/mediate.htm
-####  i) IL-6 is linked to Q5                    # X -> Y
-anova(lm(f2g$pheno$IL.6 ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  ii) Ccng2 gene expression is linked to Q5     # X -> M
-anova(lm(Ccng2_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  iii) IL-6 not linked after accounting for Q5   
-anova(lm(f2g$pheno$IL.6 ~ Sex + Ccng2_adipose + Q5, data = f2g$pheno))
-# not significant * .
-
-####  iv) Ccng2 gene expression is still linked after 
-# accounting for IL-6
-anova(lm(Ccng2_adipose ~ Sex + f2g$pheno$IL.6 + Q5, data = f2g$pheno))
-# significant ***
-
-# all 4 conditions for a mediator are satisfied
-#Causal Q -> X -> Y
-# Q = genotype at location. X = gene expression. Y = IL-6 Levels
-
-# This implies that Ccng2 directly affects 
-
-
-####  i) Insulin is linked to Q5                    # X -> Y
-anova(lm(Il6_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
-anova(lm(Ccng2_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  iii) Insulin not linked after accounting for Q5   
-anova(lm(Il6_adipose ~ Sex + Ccng2_adipose + Q5, data = f2g$pheno))
-# not significant * .
-
-####  iv) Cxc gene expression is still linked after 
-# accounting for insulin
-anova(lm(Ccng2_adipose ~ Sex + Il6_adipose + Q5, data = f2g$pheno))
-# significant ***
-
-# The third condition fails.
-
-
-
-####  i) Insulin is linked to Q5                    # X -> Y
-anova(lm(INS.10wk ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
-anova(lm(Ccng2_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  iii) Insulin not linked after accounting for Q5   
-anova(lm(INS.10wk ~ Sex + Ccng2_adipose + Q5, data = f2g$pheno))
-# not significant * .
-
-####  iv) Cxc gene expression is still linked after 
-# accounting for insulin
-anova(lm(Ccng2_adipose ~ Sex + INS.10wk + Q5, data = f2g$pheno))
-# significant ***
-
-# All four conditions for a mediator are satisified.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##################            Thap6
-##################            Thap6
-##################            Thap6
-##################            Thap6
-##################            Thap6
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)]))  #51.8 #55.3
-levels(f2g$pheno$Q5) <- c("B", "H", "R")
-names(f2g$pheno)
-
-print("##################            Thap6     ##########################")
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)])) #51.8
+print("##################            Cxcl5     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 1, 42.4)])) #The 51.9 cM location was found from scan2 above.
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
-print("##################            Thap6 - Insulin     #########################")
-triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.929 points)
+print("##################            Cxcl5 - Insulin     #########################")
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+#Inconclusive
 
-print("##################            Thap6 - IL6     #############################")
-triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
-# Reactive model is best. (beats complex by 5.783 points)
+print("##################            Cxcl5 - IL6     #############################")
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+#Inconclusive 
 
-print("##################            Thap6 - Il6 adipose expression     ##########")
-triple.fit(X = f2g$pheno$Thap6_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
+print("##################  Cxcl5 - Il6 adipose expression     ##########")
+triple.fit(X = f2g$pheno$Cxcl5_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
+#Causal
 
-
-
-f2g$pheno <- transform(f2g$pheno, Thap6_adipose)
-par(mfrow=c(2,1))
-qplot(Thap6_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
-qplot(Thap6_adipose, IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
+########################################################################
+##################            Pdgfra                   #################            
+########################################################################
 
 
 
-##########################################################
-# check 4 conditions for Thap6 gene expression 
-# as a mediator of Q5 effect on insulin
-# Normally this is done before doing BIC modeling, but we are going to do it in reverse.
-#If the conditions are met, we have a case for a pathway.
-
-#davidakenny.net/cm/mediate.htm
-####  i) Insulin is linked to Q5                    # X -> Y
-anova(lm(INS.10wk ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
-anova(lm(Thap6_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  iii) Insulin not linked after accounting for Q5   
-anova(lm(INS.10wk ~ Sex + Thap6_adipose + Q5, data = f2g$pheno))
-# not significant * .
-
-####  iv) Cxc gene expression is still linked after 
-# accounting for insulin
-anova(lm(Thap6_adipose ~ Sex + INS.10wk + Q5, data = f2g$pheno))
-# significant ***
-
-# all 4 conditions for a mediator are satisfied
-
-
-
-
-
-
-
-#Replace Ins.10wk with Il6_adipose, and IL.6 and redo mediation analysis condition checking.
-
-
-
-
-##################            Cmklr1          
-
-
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)]))
-levels(f2g$pheno$Q5) <- c("B", "H", "R")
-names(f2g$pheno)
-
-
-
-print("##################            Cmklr1     ##########################")
-f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[5]]$data[,find.marker(f2g, 5, 54.7)]))
+print("##################            Pdgfra     ##########################")
+f2g$pheno <- transform(f2g$pheno, Q5 = as.factor(f2g$geno[[1]]$data[,find.marker(f2g, 1, 76.6)])) #The 51.9 cM location was found from scan2 above.
 levels(f2g$pheno$Q5) <- c("B", "H", "R")
 
-print("##################            Cmklr1 - Insulin     ######################")
-triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
-# The reactive model beats the causal model by 6.536 points
+print("##################            Pdgfra - Insulin     #########################")
+triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$INS.10wk, Q = f2g$pheno$Q5)
+#Causal
 
-print("##################            Cmklr1 - IL6     ######################")
-triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+print("##################            Pdgfra - IL6     #############################")
+triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$IL.6, Q = f2g$pheno$Q5)
+#Inconclusive 
 
-print("##################   Cmklr1 - Il6 adipose expression     ###################")
-triple.fit(X = f2g$pheno$Cmklr1_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
+print("##################  Pdgfra - Il6 adipose expression     ##########")
+triple.fit(X = f2g$pheno$Pdgfra_adipose, Y = f2g$pheno$Il6_adipose, Q = f2g$pheno$Q5)
+#Causal
 
-
-
-f2g$pheno <- transform(f2g$pheno, Cmklr1_adipose)
-par(mfrow=c(2,1))
-
-Cmklr1_adipose <- na.omit(Cmklr1_adipose)
-qplot(Cmklr1_adipose, INS.10wk, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
-qplot(Cmklr1_adipose, IL.6, color=Q5, shape=Sex, data=f2g$pheno) + geom_smooth(aes(group=Q5), method="lm", se=FALSE)
-
-
-##########################################################
-# check 4 conditions for Cxcl5 gene expression 
-# as a mediator of Q5 effect on insulin
-# Normally this is done before doing BIC modeling, but we are going to do it in reverse.
-#If the conditions are met, we have a case for a pathway.
-
-#davidakenny.net/cm/mediate.htm
-####  i) Insulin is linked to Q5                    # X -> Y
-anova(lm(INS.10wk ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  ii) Clxcl5 gene expression is linked to Q5     # X -> M
-anova(lm(Cmklr1_adipose ~ Sex + Q5, data = f2g$pheno))
-# significant
-
-####  iii) Insulin not linked after accounting for Q5   
-anova(lm(INS.10wk ~ Sex + Cmklr1_adipose + Q5, data = f2g$pheno))
-# not significant * .
-
-####  iv) Cxc gene expression is still linked after 
-# accounting for insulin
-anova(lm(Cmklr1_adipose ~ Sex + INS.10wk + Q5, data = f2g$pheno))
-# significant ***
-
-# all 4 conditions for a mediator are satisfied
-
-#Replace Ins.10wk with Il6_adipose, and IL.6 and redo mediation analysis condition checking.
-
-
-
-
-
-
-
-
-
-
-
-
-
-###############################################
-#  III. establish mediator using model selection with BIC scoring
-
-# note that missing values will mess up BIC analysis
-apply(is.na(f2g$pheno), 2, sum)
-#
-# easiest to use the triple.fit function that removes missing data
-# and fits the three models
-
-# compute BIC scores for the causal triplet models
-#   using pdrg1_islet
-with(f2g$pheno,triple.fit(pdrg1_islet, INS.10wk, Q2))
-#  causal model has lowest score
-#  suggests that pdrg1_islet is a strong mediator of insulin
-
-# compute BIC scores for the causal triplet models
-#   using atg5_islet and atg7_islet
-with(f2g$pheno,triple.fit(pdrg1_islet, atg5_islet, Q2))
-#  causal model has lowest score
-#  suggests that pdrg1_islet is a strong mediator of Atg5 expression in islet
-
-#  causal model has lowest score but differs by only 5 from complex model
-#  therefore inconclusive
-
-###############################################
